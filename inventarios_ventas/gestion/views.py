@@ -12,10 +12,25 @@ from .serializers import CategoriaSerializer, ProductoSerializer, VentaSerialize
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from django.contrib.auth import authenticate, login
+from django.http import JsonResponse
 
 # Create your views here.
 
-
+# vista para hacer login desde el front
+def admin_login_view(request):
+    if request.method == "POST":
+        username = request.POST.get("username")
+        username = request.POST.get("password")
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            if user.is_superuser:
+                login(request, user)
+                return JsonResponse({"message": "SuperUser login successful"})
+            else:
+                return JsonResponse({"error": "solo se permiten superusuarios"}, status=403)
+        else:
+            return JsonResponse({"error": "credenciales invalidas"},status=401)
 # Vista para listar los productos
 class ListaProductosView(ListView):
     model = Producto
@@ -107,4 +122,3 @@ class VentaBulkCreateView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-

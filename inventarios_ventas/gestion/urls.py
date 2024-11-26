@@ -5,7 +5,8 @@ from .views import (
     CategoriaListCreateView, CategoriaDetailView,
     ProductoListCreateView, ProductoDetailView,
     VentaListCreateView, VentaDetailView,
-    ProductoBulkCreateView, VentaBulkCreateView
+    ProductoBulkCreateView, VentaBulkCreateView,
+    admin_login_view
 )
 
 urlpatterns = [
@@ -21,4 +22,5 @@ urlpatterns = [
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('productos/bulk-create/', ProductoBulkCreateView.as_view(), name='producto_bulk_create'),
     path('ventas/bulk-create/', VentaBulkCreateView.as_view(), name='venta_bulk_create'),
+    path('admin-login/', admin_login_view, name='admin_login'), 
 ]
