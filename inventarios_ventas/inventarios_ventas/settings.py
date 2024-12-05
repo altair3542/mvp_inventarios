@@ -11,8 +11,6 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
-from datetime import timedelta
-import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -22,7 +20,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-=mw6l7-m4m_(te^*e)u9+!&oapg(d+kpheud-jamnk=7!q_rv_'
+SECRET_KEY = 'django-insecure-zi$r5p4p=fe0z#a!7rzhk7tbtqhf3#r^v+^e3tvmmj--hx*$2h'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -41,12 +39,12 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'corsheaders',
-    'django_extensions',
-    'rest_framework_simplejwt',
-    'gestion',
+    'gestion',  # Tu aplicación interna
 ]
 
+
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',  # Antes de CsrfViewMiddleware
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -54,10 +52,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
-    'django.middleware.common.CommonMiddleware',
 ]
+
+
 
 ROOT_URLCONF = 'inventarios_ventas.urls'
 
@@ -132,35 +129,28 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.SessionAuthentication',
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ),
-    'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.IsAuthenticated',  # Para otras vistas
-    ),
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',  # Basado en sesión
+        'rest_framework.authentication.BasicAuthentication',    # Opcional, para pruebas rápidas
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',  # Permisos predeterminados
+    ],
 }
 
-SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
-}
 
+
+
+CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
-] # solo entorno de desarrollo.
-
-CORS_ALLOW_CREDENTIALS = True # esto es para usar la cookie de la sesion de django
-
-CORS_TRUSTED_ORIGINS = [
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
 ]
-
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
 ]
+SESSION_COOKIE_SAMESITE = None
+SESSION_COOKIE_SECURE = False
+SESSION_COOKIE_HTTPONLY = True
