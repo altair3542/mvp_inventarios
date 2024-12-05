@@ -9,12 +9,14 @@ from .views import (
     VentaDetailView,
     ProductoBulkCreateView,
     VentaBulkCreateView,
+    signup_superuser
 )
 
 # Documentación de rutas
 urlpatterns = [
     # Autenticación
     path('login/', admin_login_view, name='admin_login'),  # Vista para login de superusuarios
+    path('signup/', signup_superuser, name='signup-superuser'), #vista para regiastrar superusuarios
 
     # Endpoints de Categorías
     path('categorias/', CategoriaListCreateView.as_view(), name='categoria_list_create'),  # Listar y crear

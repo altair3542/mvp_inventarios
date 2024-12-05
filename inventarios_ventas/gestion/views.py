@@ -4,32 +4,56 @@ from django.shortcuts import get_object_or_404
 from django.db import transaction
 from django.http import JsonResponse
 from django.contrib.auth import authenticate, login
+from django.contrib.auth.models import User
 from django.utils.decorators import method_decorator
-from django.views.decorators.csrf import csrf_protect
+from django.views.decorators.csrf import csrf_protect, csrf_exempt
 from rest_framework import generics, permissions, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
 from .models import Categoria, Producto, Venta
 from .serializers import CategoriaSerializer, ProductoSerializer, VentaSerializer
 from .forms import VentaForm
 
 # Vista de Login para Superusuarios
-def admin_login_view(request):
-    if request.method == "GET":
-        return JsonResponse({"message": "Endpoint disponible para solicitudes POST"})
 
-    if request.method == "POST":
-        username = request.POST.get("username")
-        password = request.POST.get("password")
-        user = authenticate(request, username=username, password=password)
-        if user and user.is_superuser:
-            login(request, user)
-            return JsonResponse({"message": "SuperUser login successful"})
-        return JsonResponse(
-            {"error": "Credenciales inválidas o usuario no autorizado"},
-            status=403,
-        )
-    return JsonResponse({"error": "Método no permitido"}, status=405)
+@api_view(["POST"]) #solo metodos post
+@permission_classes([AllowAny])
+
+def admin_login_view(request):
+    username = request.data.get("username")
+    password = request.data.get("password")
+
+    user = authenticate(request, username=username, password=password)
+
+    if user and user.is_superuser:
+        login(request, user)
+        return Response({"message": "SuperUser login successful"}, status=200)
+
+    return Response({"error": "Credenciales inválidas o usuario no autorizado"}, status=403)
+
+@api_view(["POST"])
+@permission_classes([AllowAny])  # Permite acceso sin autenticación
+def signup_superuser(request):
+    username = request.data.get("username")
+    password = request.data.get("password")
+    email = request.data.get("email")
+
+    # Validar datos enviados
+    if not username or not password or not email:
+        return Response({"error": "Se requieren 'username', 'password' y 'email'"}, status=400)
+
+    # Verificar si el usuario ya existe
+    if User.objects.filter(username=username).exists():
+        return Response({"error": "El usuario ya existe"}, status=400)
+
+    # Crear el superusuario
+    try:
+        superuser = User.objects.create_superuser(username=username, password=password, email=email)
+        return Response({"message": f"Superusuario '{superuser.username}' creado exitosamente"}, status=201)
+    except Exception as e:
+        return Response({"error": f"Error al crear el superusuario: {str(e)}"}, status=500)
 
 
 # Vista para Registrar Venta
